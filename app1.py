@@ -322,6 +322,8 @@ section[data-testid="stSidebar"] *{color:#e8eaf0!important;}
     color: #ff5a3c !important;
 }
 
+st.markdown("""
+<style>
 iframe {
   border-radius: 14px !important;
   border: 1px solid #1e2d45 !important;
