@@ -216,9 +216,16 @@ Key observations from training:
 
 Sample predictions on the test set showing the segmentation masks overlaid on landslide regions.
 
-![Detection Result 1](mode_prediction.png)
-![Detection Result 2](landside.png)
-![Detection Result 2](landslide1.png)
+### 🔹 Example 1
+<p align="center">
+  <img src="mode_prediction.png" width="45%" />
+</p>
+
+### 🔹 Example 2
+<p align="center">
+  <img src="landslide1.png" width="45%" />
+  <img src="landside.png" width="45%" />
+</p>
 
 The model demonstrates effective landslide detection and segmentation on test images. 
 
