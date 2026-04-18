@@ -218,13 +218,14 @@ Sample predictions on the test set showing the segmentation masks overlaid on la
 
 ### 🔹 Example 1
 <p align="center">
-  <img src="mode_prediction.png" width="45%" />
+  <img src="landslide1.png" width="45%" />
+  <img src="landside.png" width="45%" />
 </p>
 
 ### 🔹 Example 2
+</p>
 <p align="center">
-  <img src="landslide1.png" width="45%" />
-  <img src="landside.png" width="45%" />
+  <img src="mode_prediction.png" width="100%" />
 </p>
 
 The model demonstrates effective landslide detection and segmentation on test images. 
