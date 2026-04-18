@@ -180,29 +180,19 @@ Key observations from training:
 
 ### Confusion Matrix
 
-> 📊 *Add your confusion matrix image below:*
 
-```markdown
-![Confusion Matrix](runs/segment/train21/confusion_matrix.png)
-```
 
-### Precision-Recall Curve
+![Confusion Matrix](confusion_matrix.png)
 
-> 📊 *Add your PR curve image below:*
+## 📉 Precision-Recall Curve
 
-```markdown
-![PR Curve](runs/segment/train21/PR_curve.png)
-```
+![PR Curve](pr_curve.png)
 
-### F1-Score Curve
+## 📈 F1-Score Curve
 
-> 📊 *Add your F1 curve image below:*
+![F1 Curve](f1_curve.png)
 
-```markdown
-![F1 Curve](runs/segment/train21/F1_curve.png)
-```
 
----
 
 ## 🖼️ Detection Results
 
