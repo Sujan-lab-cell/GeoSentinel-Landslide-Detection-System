@@ -443,39 +443,43 @@ with tab1:
                 location_name, lat, lon = render_map(detected=True,confidence_percent=percent)
                 # ✅ SAVE DATA
     
-                if st.button("💾 Save to Database", key="save_img"):
-                    save_landslide(lat, lon, percent, location_name)
-                if percent >= 70:
-                    if st.button("🚨 Send Auto Alerts", key="auto_alert_img"):
-                        send_sms_alert(percent, location_name)
-                        send_email_alert(percent, location_name, "output.jpg")
+                # if st.button("💾 Save to Database", key="save_img"):
+                #     save_landslide(lat, lon, percent, location_name)
+                # if percent >= 70:
+                #     if st.button("🚨 Send Auto Alerts", key="auto_alert_img"):
+                #         send_sms_alert(percent, location_name)
+                #         send_email_alert(percent, location_name, "output.jpg")
 
                 # ── 📡 ALERT BUTTONS ─────────────────────────────────
-                st.markdown("""
-                <div style='font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;
-                            color:#7a8399;margin:1.5rem 0 0.75rem;'>📡 Send Alerts</div>
-                """, unsafe_allow_html=True)
-
-                btn_col1, btn_col2 = st.columns(2)
-                with btn_col1:
-                    if st.button("📱 Send SMS Alert", key="sms_img"):
-                        with st.spinner("Sending SMS…"):
-                            ok = send_sms_alert(percent, location_name)
-                        st.success("✅ SMS sent!") if ok else st.error("SMS failed.")
-                with btn_col2:
-                    if st.button("📧 Send Email Alert", key="email_img"):
-                        with st.spinner("Sending email…"):
-                            ok = send_email_alert(percent, location_name, "output.jpg")
-                        st.success("✅ Email sent with annotated image!") if ok else st.error("Email failed.")
+                # st.markdown("""
+                # <div style='font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;
+                #             color:#7a8399;margin:1.5rem 0 0.75rem;'>📡 Send Alerts</div>
+                # """, unsafe_allow_html=True)
+                # btn_col1, btn_col2 = st.columns(2)
+                # with btn_col1:
+                #     st.info("SMS disabled in cloud")
+                #     with btn_col2:
+                #         st.info("Email disabled in cloud")
+                # btn_col1, btn_col2 = st.columns(2)
+                # with btn_col1:
+                #     if st.button("📱 Send SMS Alert", key="sms_img"):
+                #         with st.spinner("Sending SMS…"):
+                #             ok = send_sms_alert(percent, location_name)
+                #         st.success("✅ SMS sent!") if ok else st.error("SMS failed.")
+                # with btn_col2:
+                #     if st.button("📧 Send Email Alert", key="email_img"):
+                #         with st.spinner("Sending email…"):
+                #             ok = send_email_alert(percent, location_name, "output.jpg")
+                #         st.success("✅ Email sent with annotated image!") if ok else st.error("Email failed.")
 
                 # GIF + Audio (original)
                 c1, c2, c3 = st.columns([1, 2, 1])
                 with c2:
                     st.image("https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHJmenc0dG11ZXlmcTJ2anAzcTdsdjNiczdvcWZucGpwZHEyd2VvYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/51Uiuy5QBZNkoF3b2Z/giphy.gif", width=280)
 
-                alert_text = f"Warning! Landslide detected with {percent} percent confidence. Risk level is high. Please evacuate immediately. Emergency Numbers. Disaster Helpline number — 108. Fire Brigade number — 101"
-                speak_alert(alert_text)
-                st.audio("alert.mp3")
+                # alert_text = f"Warning! Landslide detected with {percent} percent confidence. Risk level is high. Please evacuate immediately. Emergency Numbers. Disaster Helpline number — 108. Fire Brigade number — 101"
+                # # speak_alert(alert_text)
+                # st.audio("alert.mp3")
 
                 st.markdown("""
                 <div class="info-grid">
@@ -642,19 +646,19 @@ with tab2:
                 if res["max_confidence"] >= 70:
                     pass
             # Alerts for video
-            if danger and res["max_confidence"] > 70:
-                st.markdown("<div style='font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;color:#7a8399;margin:1.5rem 0 0.75rem;'>📡 Send Alerts</div>", unsafe_allow_html=True)
-                va1, va2 = st.columns(2)
-                with va1:
-                    if st.button("📱 Send SMS Alert", key="sms_vid"):
-                        with st.spinner("Sending…"):
-                            ok = send_sms_alert(res["max_confidence"], vid_location)
-                        st.success("✅ SMS sent!") if ok else st.error("SMS failed.")
-                with va2:
-                    if st.button("📧 Send Email Alert", key="email_vid"):
-                        with st.spinner("Sending…"):
-                            ok = send_email_alert(res["max_confidence"], vid_location)
-                        st.success("✅ Email sent!") if ok else st.error("Email failed.")
+            # if danger and res["max_confidence"] > 70:
+            #     st.markdown("<div style='font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;color:#7a8399;margin:1.5rem 0 0.75rem;'>📡 Send Alerts</div>", unsafe_allow_html=True)
+            #     va1, va2 = st.columns(2)
+            #     with va1:
+            #         if st.button("📱 Send SMS Alert", key="sms_vid"):
+            #             with st.spinner("Sending…"):
+            #                 ok = send_sms_alert(res["max_confidence"], vid_location)
+            #             st.success("✅ SMS sent!") if ok else st.error("SMS failed.")
+            #     with va2:
+            #         if st.button("📧 Send Email Alert", key="email_vid"):
+            #             with st.spinner("Sending…"):
+            #                 ok = send_email_alert(res["max_confidence"], vid_location)
+            #             st.success("✅ Email sent!") if ok else st.error("Email failed.")
 
             # Download annotated video
             if os.path.exists(res["output_path"]):
