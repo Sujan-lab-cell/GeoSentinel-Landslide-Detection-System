@@ -142,7 +142,7 @@ Training was performed using transfer learning from the COCO-pretrained YOLOv8 n
 
 ## 📈 Training Performance
 
-Training and validation metrics were logged across all 100 epochs using Ultralytics' built-in logger.
+Training and validation metrics were logged across all 50 epochs using Ultralytics' built-in logger.
 
 ### Training Graphs
 ![Training Results](results.png)
