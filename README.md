@@ -270,10 +270,12 @@ Overall, the results show that the model can reliably distinguish between landsl
 | 💾 Database | CSV-based logging of lat/lon, confidence, timestamp, location |
 
 # UI Screenshots
+<p align="center">
+  <h2>NO LandSlide Input/OutPut</h2>
+  <img src="safe_img.png" width="400">
+</p>
 
-
-<h3>Landslide Detected IMG</h3>
-
+<h1>Landslide Detected IMG</h1>
 <p align="center">
   <h3>Input Detection</h3>
   <img src="ui_img2.png" width="400">
