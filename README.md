@@ -271,14 +271,12 @@ Overall, the results show that the model can reliably distinguish between landsl
 
 ### UI Screenshots
 
-> 📷 *Add your UI screenshots here:*
 
-```markdown
-![Dashboard - Image Analysis Tab](screenshots/ui_image_tab.png)
-![Dashboard - Video Analysis Tab](screenshots/ui_video_tab.png)
-![Map View - Landslide Detected](screenshots/ui_map_danger.png)
-![Heatmap View](screenshots/ui_heatmap.png)
-```
+Landslide Detected
+![Dashboard - Image Analysis Tab](ui_img2.png)
+![Dashboard - Video Analysis Tab](ui_img3.png)
+![Map View - Landslide Detected](ui_img1.png)
+
 
 ### Running the App
 
