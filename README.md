@@ -457,6 +457,10 @@ GeoSentinel demonstrates that modern instance segmentation models like YOLOv8-Se
 
 ---
 
+# 👨‍💻 Author
+
+**Sujan KS**
+
 <p align="center">
   Built for rapid disaster response · For emergency use only<br>
   <b>GeoSentinel AI</b> — Detect landslides before disaster strikes 🛰️
