@@ -269,14 +269,30 @@ Overall, the results show that the model can reliably distinguish between landsl
 | 🔊 Audio Alert | pyttsx3 voice alert played in-browser on danger detection |
 | 💾 Database | CSV-based logging of lat/lon, confidence, timestamp, location |
 
-### UI Screenshots
+# UI Screenshots
 
 
-Landslide Detected
-![Dashboard - Image Analysis Tab](ui_img2.png)
-![Dashboard - Video Analysis Tab](ui_img3.png)
-![Map View - Landslide Detected](ui_img1.png)
+<h3>Landslide Detected IMG</h3>
 
+<p align="center">
+  <h3>Input Detection</h3>
+  <img src="ui_img2.png" width="400">
+    <h3>Map and SMS</h3>
+  <img src="ui_img3.png" width="500">
+</p>
+
+<p align="center">
+  <h3>HeatMap</h3>
+  <img src="ui_img1.png" width="500">
+</p>
+<h3>Landslide Detected VID</h3>
+
+<p align="center">
+  <h3>Input Vid</h3>
+  <img src="ui_vid1.png" width="600">
+  <h3>Output</h3>
+  <img src="ui_vid2.png" width="400">
+</p>
 
 ### Running the App
 
