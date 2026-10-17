@@ -18,9 +18,10 @@
 8. [Model Performance Metrics](#-model-performance-metrics)
 9. [Detection Results](#-detection-results)
 10. [How It Works & UI](#-how-it-works--ui)
-11. [Real-World Use Case](#-Real-World-Use-Case)
-12. [Conclusion](#-conclusion)
-13. [References](#-references)
+11. [Repository Structure](#-repository-structure)
+12. [Real-World Use Case](#-Real-World-Use-Case)
+13. [Conclusion](#-conclusion)
+14. [References](#-references)
 
 ---
 
@@ -138,7 +139,7 @@ Training was performed using transfer learning from the COCO-pretrained YOLOv8 n
 Training and validation metrics were logged across all 50 epochs using Ultralytics' built-in logger.
 
 ### Training Graphs
-![Training Results](results.png)
+![Training Results](results/results.png)
 
 Key observations from training:
 - Box loss and segmentation loss converged steadily after epoch 30.
@@ -173,9 +174,7 @@ Key observations from training:
 
 ### Confusion Matrix
 
-
-
-![Confusion Matrix](confusion_matrix.png)
+![Confusion Matrix](results/confusion_matrix.png)
 
 - The model correctly detected **69 landslides (True Positives)**  
 - It misclassified **14 landslides as background (False Negatives)**  
@@ -186,7 +185,7 @@ Key observations from training:
 
 ## 📉 Precision-Recall Curve
 
-![PR Curve](pr_curve.png)
+![PR Curve](results/pr_curve.png)
 
 
 - The model achieves **mAP@0.5 ≈ 0.73**, indicating good detection performance  
@@ -197,7 +196,7 @@ Key observations from training:
 
 ## 📈 F1-Score Curve
 
-![F1 Curve](mask_f1_curve.png)
+![F1 Curve](results/mask_f1_curve.png)
 
 - Peak F1 score ≈ **0.74 at confidence ~0.45**  
 - Indicates the best balance between precision and recall  
@@ -211,14 +210,14 @@ Sample predictions on the test set showing the segmentation masks overlaid on la
 
 ### 🔹 Example 1
 <p align="center">
-  <img src="landslide1.png" width="45%" />
-  <img src="landside.png" width="45%" />
+  <img src="assets/examples/landslide1.png" width="45%" />
+  <img src="assets/examples/landside.png" width="45%" />
 </p>
 
 ### 🔹 Example 2
 </p>
 <p align="center">
-  <img src="mode_prediction.png" width="100%" />
+  <img src="results/mode_prediction.png" width="100%" />
 </p>
 
 The model demonstrates effective landslide detection and segmentation on test images. 
@@ -265,28 +264,28 @@ Overall, the results show that the model can reliably distinguish between landsl
 # UI Screenshots
 <p align="center">
   <h2>NO LandSlide Input/OutPut</h2>
-  <img src="safe_img.png" width="400">
+  <img src="assets/ui/safe_img.png" width="400">
 </p>
 
 <h1>Landslide Detected IMG</h1>
 <p align="center">
   <h3>Input Detection</h3>
-  <img src="ui_img2.png" width="400">
+  <img src="assets/ui/ui_img2.png" width="400">
     <h3>Map and SMS</h3>
-  <img src="ui_img3.png" width="500">
+  <img src="assets/ui/ui_img3.png" width="500">
 </p>
 
 <p align="center">
   <h3>HeatMap</h3>
-  <img src="ui_img1.png" width="500">
+  <img src="assets/ui/ui_img1.png" width="500">
 </p>
 <h3>Landslide Detected VID</h3>
 
 <p align="center">
   <h3>Input Vid</h3>
-  <img src="ui_vid1.png" width="600">
+  <img src="assets/ui/ui_vid1.png" width="600">
   <h3>Output</h3>
-  <img src="ui_vid2.png" width="400">
+  <img src="assets/ui/ui_vid2.png" width="400">
 </p>
 
 ### Running the App
@@ -317,6 +316,52 @@ sendgrid
 pyttsx3
 pandas
 numpy
+```
+
+### 📁 Repository Structure
+
+```text
+GeoSentinel-Landslide-Detection-System/
+├── .devcontainer/
+│   └── devcontainer.json        # VS Code Codespaces / Container environment
+├── assets/
+│   ├── examples/                # Real sample landslide test images
+│   │   ├── landslide1.png
+│   │   └── landside.png
+│   └── ui/                      # Application user interface screenshots
+│       ├── safe_img.png
+│       ├── ui_img1.png
+│       ├── ui_img2.png
+│       ├── ui_img3.png
+│       ├── ui_vid1.png
+│       └── ui_vid2.png
+├── data/
+│   ├── data.yaml                # YOLO dataset configuration
+│   └── landslide_data.csv       # Persistent detection logs (GPS, confidence, timestamps)
+├── docs/
+│   ├── README.dataset.txt       # Roboflow dataset license and source information
+│   └── README.roboflow.txt      # Data preprocessing and augmentation parameters
+├── notebooks/
+│   └── model.ipynb              # YOLOv8 segmentation model training notebook
+├── results/
+│   ├── confusion_matrix.png     # Validation confusion matrix
+│   ├── mask_f1_curve.png        # Mask F1-confidence curve
+│   ├── mode_prediction.png      # Segmentation prediction collage
+│   ├── NO_LANDSLIDE.png         # Model prediction test matrix
+│   ├── pr_curve.png             # Precision-Recall curve
+│   └── results.png              # Epoch-by-epoch training and validation loss
+├── src/
+│   ├── __init__.py              # Python source package
+│   ├── database.py              # CSV database logging module with dynamic pathing
+│   └── features.py              # Twilio SMS, SendGrid Email, and Video analysis modules
+├── .gitignore                   # Version control rules
+├── app.py                       # Main Streamlit web application
+├── app1.py                      # Backward-compatibility application launcher
+├── best.pt                      # Trained YOLOv8 segmentation weights
+├── data.yaml                    # Dataset configuration file
+├── packages.txt                 # Debian/Ubuntu system packages (libgl1)
+├── requirements.txt             # Python runtime dependencies
+└── README.md                    # Project documentation
 ```
 
 ---

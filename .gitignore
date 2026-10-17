@@ -129,4 +129,9 @@ test/
 testing_iamge_audio/
 train/
 valid/
-app.py
+
+# Runtime output files
+temp.jpg
+output.jpg
+annotated_video.mp4
+alert.mp3
