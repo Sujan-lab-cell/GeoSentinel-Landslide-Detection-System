@@ -1,12 +1,5 @@
 # 🛰️ GeoSentinel — AI-Powered Landslide Detection System
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Model-YOLOv8--Seg-orange?style=for-the-badge&logo=python" />
-  <img src="https://img.shields.io/badge/Framework-Streamlit-red?style=for-the-badge&logo=streamlit" />
-  <img src="https://img.shields.io/badge/Alerts-SMS%20%7C%20Email-blue?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Map-Folium%20%7C%20OSM-green?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" />
-</p>
 
 <p align="center">
   <b>Real-time landslide detection from satellite & drone imagery using YOLOv8 segmentation — with live maps, SMS alerts, and email notifications.</b>
