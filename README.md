@@ -1,507 +1,256 @@
 # 🛰️ GeoSentinel — AI-Powered Landslide Detection System
 
-
-<p align="center">
-  <b>Real-time landslide detection from satellite & drone imagery using YOLOv8 segmentation — with live maps, SMS alerts, and email notifications.</b>
-</p>
+Real-time landslide detection and segmentation from satellite and aerial drone imagery powered by **YOLOv8-Seg**, featuring interactive GIS mapping, historical heatmap analytics, and automated emergency alert dispatching via Streamlit.
 
 ---
+
 ## 📋 Table of Contents
-
-1. [Project Overview](#-project-overview)
-2. [Objectives](#-objectives)
-3. [Dataset Description](#-dataset-description)
-4. [Preprocessing & Augmentation](#-preprocessing--augmentation)
-5. [Model Architecture](#-model-architecture)
-6. [Training Configuration](#-training-configuration)
-7. [Training Performance](#-training-performance)
-8. [Model Performance Metrics](#-model-performance-metrics)
-9. [Detection Results](#-detection-results)
-10. [How It Works & UI](#-how-it-works--ui)
-11. [Repository Structure](#-repository-structure)
-12. [Real-World Use Case](#-Real-World-Use-Case)
-13. [Conclusion](#-conclusion)
-14. [References](#-references)
+1. [Project Overview & Objectives](#-project-overview--objectives)
+2. [System Features & Status](#-system-features--status)
+3. [Dataset & Augmentation Pipeline](#-dataset--augmentation-pipeline)
+4. [Model Architecture & Training](#-model-architecture--training)
+5. [Performance Metrics & Evaluation](#-performance-metrics--evaluation)
+6. [Detection Results & UI Walkthrough](#-detection-results--ui-walkthrough)
+7. [Operational Workflow & Disaster Response](#-operational-workflow--disaster-response)
+8. [Repository Structure](#-repository-structure)
+9. [Installation & Quickstart](#-installation--quickstart)
+10. [Dataset Bias, Limitations & Roadmap](#-dataset-bias-limitations--roadmap)
+11. [References & Contributors](#-references--contributors)
 
 ---
 
-## 🌍 Project Overview
+## 🌍 Project Overview & Objectives
 
-**GeoSentinel** is an AI-powered disaster detection system built to identify landslides in real time from satellite images, aerial photographs, and drone video footage. Powered by **YOLOv8 instance segmentation**, the application delivers immediate visual analysis, geographic risk mapping, and automated emergency alerts — all through a clean, dark-themed web UI built with Streamlit.
+Landslides cause severe infrastructure damage and casualties in hilly, remote regions where ground access is blocked and communication is fragile. **GeoSentinel** provides an end-to-end computer vision and emergency response pipeline that converts raw satellite and drone captures into actionable disaster intelligence within seconds.
 
-The system is designed for field deployment by disaster management agencies, providing a pipeline that goes from raw image input to SMS + email alerts sent to officers in seconds.
-
----
-
-## 🎯 Objectives
-
-- Detect landslide regions in images and video frames with high accuracy using deep learning segmentation.
-- Provide real-time confidence scoring and risk level classification (High / Low / None).
-- Automatically send **SMS alerts** (via Twilio) and **Email alerts** (via SendGrid) to field officers upon detection.
-- Pin detected landslide locations on an **interactive Folium map** with GPS coordinates and a 1 km evacuation radius.
-- Analyze **drone video footage** frame-by-frame and generate annotated output video.
-- Log detection data to a persistent CSV database and render a **landslide heatmap** over time.
+* **High-Precision Segmentation:** Identifies unstable slope boundaries using YOLOv8 instance segmentation.
+* **Triage & Scoring:** Computes confidence scores and classifies risk levels (`HIGH`, `LOW`, `NONE`).
+* **Geospatial Pinning:** Renders interactive Folium maps with GPS coordinates and a 1 km evacuation perimeter.
+* **Drone Video Analytics:** Frame-by-frame inference on drone footage with timeline charts and annotated video export.
+* **Automated Early Warnings:** Multi-channel alerting (SMS, rich HTML email, and local speech warnings).
+* **Historical Heatmaps:** Logs coordinate and risk data to a persistent CSV database to monitor hazard zones over time.
 
 ---
 
-## 📦 Dataset Description
+## ⚡ System Features & Status
 
-The model was trained on a custom landslide segmentation dataset assembled from multiple public and satellite imagery sources.
-
-| Split | Images | Proportion |
-|-------|--------|------------|
-| Train | 711 | 87% |
-| Valid | 70 | 9% |
-| Test | 40 | 5% |
-| **Total** | **821** | **100%** |
-
-> ⚠️ **Note:** The initial raw collection comprised **327 images**. After augmentation (3× outputs per training example), the effective dataset grew to **821 annotated images**.
-
-**Dataset sources and further details:**  
-🔗 [Roboflow Landslide Segmentation Dataset](https://universe.roboflow.com/sujans-workspace/landslides-2/dataset/3) 
-🔗 [Kaggle Landslide4Sense](https://www.kaggle.com/datasets/saurabhshahane/landslide4sense)  
-🔗 [NASA Landslide Inventory](https://gpm.nasa.gov/landslides/index.html)
-
-**Annotation format:** Polygon segmentation masks (YOLO `.txt` format)  
-**Classes:** `landslide` (single class detection + segmentation)
+| Feature | Tech Stack | Operational Status & Details |
+|---|---|---|
+| **📷 Image Analysis** | Ultralytics YOLOv8, Pillow | **Active:** Instant mask overlay, confidence score, and risk badge. |
+| **🎞️ Drone Video Scan** | OpenCV, NumPy | **Active:** Frame-by-frame analysis (MP4/AVI/MOV/GIF), timeline bar, annotated video download. |
+| **🗺️ Geolocation Map** | Folium, Streamlit-Folium | **Active:** CartoDB dark-matter map, danger/safe markers, 1 km radius evacuation zone. |
+| **🔥 Historical Heatmap** | Folium HeatMap Plugin, Pandas | **Active:** Density heatmap generated dynamically from `data/landslide_data.csv`. |
+| **💾 Detection Logging** | Python CSV Engine | **Active:** Persistent logging of latitude, longitude, confidence %, timestamp, and location name. |
+| **📱 SMS Alert** | Twilio REST API | **Configurable:** Pre-built in `src/features.py`; disabled in public demo due to API credentials. |
+| **📧 HTML Email Alert** | SendGrid API | **Configurable:** Sends HTML emergency alert with annotated detection image attached; requires API key. |
+| **🔊 Audio Voice Alert** | pyttsx3 | **Local Mode:** In-browser synthesized voice prompt instructing slope evacuation. |
 
 ---
 
-## 🔧 Preprocessing & Augmentation
+## 📦 Dataset & Augmentation Pipeline
 
-All images were standardized and augmented using Roboflow's pipeline before training.
+The model was trained on a curated landslide segmentation dataset aggregated from multiple satellite and aerial sources:
+* 🔗 [Roboflow Landslide Segmentation Dataset](https://universe.roboflow.com/sujans-workspace/landslides-2/dataset/3)
+* 🔗 [Kaggle Landslide4Sense](https://www.kaggle.com/datasets/saurabhshahane/landslide4sense)
+* 🔗 [NASA Global Landslide Catalog](https://gpm.nasa.gov/landslides/index.html)
 
-### Preprocessing
-| Step | Setting |
-|------|---------|
-| Auto-Orient | Applied (EXIF correction) |
-| Resize | Fit (black edges) → **640 × 640 px** |
+### Data Splits & Format
+* **Raw Collection:** 327 original satellite/aerial images
+* **Augmented Dataset:** 821 annotated images (3× multiplier on training split)
+* **Annotation Format:** YOLO polygon segmentation coordinates (`.txt`)
+* **Classes:** Single-class detection & segmentation (`0: landslide`)
 
-### Augmentation
-| Technique | Value |
-|-----------|-------|
-| Outputs per training example | **3×** |
-| Flip | Horizontal |
-| Rotation | Between **−5° and +5°** |
-| Brightness | Between **−20% and +20%** |
-| Blur | Up to **1.5 px** |
-| Noise | Up to **1.33% of pixels** |
-
-These augmentations were chosen to simulate real-world variability in satellite and drone imagery (lighting changes, slight camera tilt, sensor noise).
+| Split | Images | Proportion | Preprocessing & Augmentation Pipeline | Settings |
+|---|---|---|---|---|
+| **Train** | 711 | 87% | **Auto-Orient (EXIF)** | Applied |
+| **Valid** | 70 | 9% | **Resize (Fit black edges)** | 640 × 640 px |
+| **Test** | 40 | 5% | **Horizontal Flip / Rotation** | 50% prob / ±5° |
+| **Total** | **821** | **100%** | **Brightness / Blur / Noise** | ±20% / 1.5 px / 1.33% pixels |
 
 ---
 
-## 🧠 Model Architecture
+## 🧠 Model Architecture & Training
 
-GeoSentinel uses **YOLOv8-Seg** (You Only Look Once v8 — Segmentation variant) by Ultralytics.
+GeoSentinel fine-tunes **YOLOv8n-Seg** (Nano Segmentation) using transfer learning from COCO pretrained weights.
 
-```
-YOLOv8-Seg
-├── Backbone       : CSPDarknet (Cross Stage Partial Network)
-├── Neck           : PANet (Path Aggregation Network)
-├── Detection Head : Decoupled head (classification + box regression)
-└── Mask Head      : Prototype-based instance segmentation
+```text
+YOLOv8-Seg Architecture
+├── Backbone       : CSPDarknet (Cross Stage Partial feature extraction)
+├── Neck           : PANet (Path Aggregation Network for multi-scale feature fusion)
+├── Detection Head : Decoupled anchor-free head (bounding box regression + objectness)
+└── Mask Head      : Prototype-based instance segmentation (ProtoNet generating 32 mask coefficients)
 ```
 
-| Property | Value |
-|----------|-------|
-| Input Size | 640 × 640 px |
-| Task | Instance Segmentation |
-| Classes | 1 (`landslide`) |
-| Confidence Threshold | 0.50 |
-| Output | Bounding box + segmentation mask + confidence score |
+### Hyperparameters & Training Specs
 
-YOLOv8-Seg was selected for its strong balance between speed and accuracy on custom single-class segmentation tasks, and its straightforward export + inference pipeline.
-
----
-
-## ⚙️ Training Configuration
-
-```yaml
-Model       : yolov8n-seg.pt  (pretrained on COCO)
-Epochs      : 100
-Batch Size  : 16
-Image Size  : 640
-Optimizer   : AdamW
-LR (initial): 0.01
-LR (final)  : 0.0001
-Weight Decay: 0.0005
-Augment     : True (Mosaic, MixUp, HSV, Flip)
-Device      : CUDA (NVIDIA GPU)
-```
-
-Training was performed using transfer learning from the COCO-pretrained YOLOv8 nano-seg weights (`yolov8n-seg.pt`), fine-tuned on the landslide dataset.
+| Parameter | Setting | Parameter | Setting |
+|---|---|---|---|
+| **Base Model** | `yolov8n-seg.pt` (COCO) | **Optimizer** | AdamW |
+| **Input Resolution** | 640 × 640 px | **Learning Rate** | Initial: 0.01 → Final: 0.0001 |
+| **Scheduled Epochs** | 100 (best weights saved at plateau) | **Weight Decay** | 0.0005 |
+| **Batch Size** | 16 | **Augmentation** | Mosaic, MixUp, HSV jitter, Flip |
+| **Hardware** | NVIDIA GPU (CUDA acceleration) | **Exported Weights** | `best.pt` (23.9 MB) |
 
 ---
 
-## 📈 Training Performance
+## 📊 Performance Metrics & Evaluation
 
-Training and validation metrics were logged across all 50 epochs using Ultralytics' built-in logger.
+Evaluation on the independent **test set (40 images)** demonstrates high precision and balanced boundary delineation:
 
-### Training Graphs
-![Training Results](results/results.png)
+| Task Domain | Precision | Recall | mAP@0.50 | mAP@0.50:0.95 | Key Insight |
+|---|---|---|---|---|---|
+| **Bounding Box** | **0.843** | **0.802** | **0.837** | **0.448** | Strong object localization and identification across varying lighting. |
+| **Segmentation Mask**| **0.844** | **0.679** | **0.731** | **0.342** | High mask fidelity; conservative recall minimizes false slope alarms. |
 
-Key observations from training:
-- Box loss and segmentation loss converged steadily after epoch 30.
-- Validation mAP50 plateaued around epoch 70–80, with best weights saved automatically.
-- No significant overfitting observed; val loss tracked train loss closely.
+### Evaluation Curves & Matrix
+
+| Training Progression (`results.png`) | Confusion Matrix (`confusion_matrix.png`) |
+|:---:|:---:|
+| ![Training Results](results/results.png) | ![Confusion Matrix](results/confusion_matrix.png) |
+| **Precision-Recall Curve (`pr_curve.png`)** | **F1-Score Confidence Curve (`mask_f1_curve.png`)** |
+| ![PR Curve](results/pr_curve.png) | ![F1 Curve](results/mask_f1_curve.png) |
+
+* **Confusion Matrix Breakdown:** 69 True Positives, 14 False Negatives (landslides missed as background), 12 False Positives (terrain misclassified as landslide).
+* **PR Curve:** Area under curve reaches **mAP@0.5 ≈ 0.73**, proving consistent detection at practical recall thresholds.
+* **F1 Curve:** Peak F1 score of **0.74 achieved at confidence ~0.45**, establishing **0.45–0.50** as the optimal operational threshold.
 
 ---
 
-## 📊 Model Performance Metrics
+## 🖼️ Detection Results & UI Walkthrough
 
-### 📊 Evaluation on Test Set (40 images)
+### Test Set Predictions
+| Sample 1: Active Landslide Mask (`landslide1.png`) | Sample 2: Scarp Boundary (`landside.png`) | Test Matrix Collage (`mode_prediction.png`) |
+|:---:|:---:|:---:|
+| <img src="assets/examples/landslide1.png" width="220" /> | <img src="assets/examples/landside.png" width="220" /> | <img src="results/mode_prediction.png" width="220" /> |
 
-| Metric | Value |
-|--------|------|
-| Precision (Box) | 0.843 |
-| Recall (Box) | 0.802 |
-| mAP@0.50 (Box) | 0.837 |
-| mAP@0.50:0.95 (Box) | 0.448 |
-| Precision (Mask) | 0.844 |
-| Recall (Mask) | 0.679 |
-| mAP@0.50 (Mask) | 0.731 |
-| mAP@0.50:0.95 (Mask) | 0.342 |
+### Application Interface Walkthrough
+| Safe Terrain / No Landslide | Image Detection & Confidence | Risk Map & SMS Alert Panel |
+|:---:|:---:|:---:|
+| <img src="assets/ui/safe_img.png" width="240" /> | <img src="assets/ui/ui_img2.png" width="240" /> | <img src="assets/ui/ui_img3.png" width="240" /> |
+| **Drone Video Input** | **Drone Video Output & Timeline** | **Historical Landslide HeatMap** |
+| <img src="assets/ui/ui_vid1.png" width="240" /> | <img src="assets/ui/ui_vid2.png" width="240" /> | <img src="assets/ui/ui_img1.png" width="240" /> |
 
-### 📈 Performance Analysis
-
-- The model achieves high precision (0.84), indicating accurate detection of landslides.
-- Recall (0.80) shows most landslides are successfully identified.
-- Strong mAP@0.50 (0.83) indicates reliable object detection performance.
-- Lower mAP@0.50:0.95 (0.44) suggests room for improvement in precise localization.
-- Mask metrics confirm effective segmentation, though slightly lower recall indicates some missed regions.
-
-
-### Confusion Matrix
-
-![Confusion Matrix](results/confusion_matrix.png)
-
-- The model correctly detected **69 landslides (True Positives)**  
-- It misclassified **14 landslides as background (False Negatives)**  
-- It wrongly predicted **12 background regions as landslides (False Positives)**  
-- True negatives are very low, likely due to fewer background-only samples  
-
-👉 Overall: The model detects landslides well but can still confuse background regions.
-
-## 📉 Precision-Recall Curve
-
-![PR Curve](results/pr_curve.png)
-
-
-- The model achieves **mAP@0.5 ≈ 0.73**, indicating good detection performance  
-- High precision at lower recall → predictions are reliable  
-- Precision drops as recall increases → some false detections at higher sensitivity  
-
-👉 Overall: The model balances accuracy and detection capability effectively.
-
-## 📈 F1-Score Curve
-
-![F1 Curve](results/mask_f1_curve.png)
-
-- Peak F1 score ≈ **0.74 at confidence ~0.45**  
-- Indicates the best balance between precision and recall  
-- Performance drops at very high confidence → fewer detections  
-
-👉 Optimal confidence threshold for deployment: **~0.45**
-
-## 🖼️ Detection Results
-
-Sample predictions on the test set showing the segmentation masks overlaid on landslide regions.
-
-### 🔹 Example 1
-<p align="center">
-  <img src="assets/examples/landslide1.png" width="45%" />
-  <img src="assets/examples/landside.png" width="45%" />
-</p>
-
-### 🔹 Example 2
-</p>
-<p align="center">
-  <img src="results/mode_prediction.png" width="100%" />
-</p>
-
-The model demonstrates effective landslide detection and segmentation on test images. 
-
-- In the first example, the model accurately identifies the landslide region and generates a well-defined segmentation mask with a confidence score of 0.83, closely matching the affected area.
-- In the second example, the model correctly recognizes stable terrain and does not produce any false detections, indicating good generalization.
-
-Overall, the results show that the model can reliably distinguish between landslide and non-landslide regions while maintaining precise boundary segmentation.
 ---
 
-## 🚀 How It Works & UI
+## 🔄 Operational Workflow & Disaster Response
 
-### Workflow
-
-```
-1. Upload Image / Drone Video
-        ↓
-2. YOLOv8-Seg Inference (640×640)
-        ↓
-3. Confidence Score Computed
-        ↓
-4. Risk Level: HIGH / LOW / NONE
-        ↓
-5. Alert Issued + GPS Map Pinned
-        ↓
-6. SMS (Twilio) + Email (SendGrid) Sent
-        ↓
-7. Detection Logged to CSV Database
+```text
+[Satellite / Drone Capture] ──> [YOLOv8-Seg 640×640] ──> [Confidence & Mask Evaluation]
+                                                                   │
+               ┌───────────────────────────────────────────────────┴────────────────────────────────────────┐
+               ▼                                                   ▼                                        ▼
+   [HIGH RISK (Conf ≥ 0.50)]                           [LOW RISK (Conf < 0.50)]                     [NO RISK DETECTED]
+   • Red Danger Banner & Siren                         • Green Caution Banner                       • Safe Terrain UI
+   • Folium 1 km Evacuation Map                        • Terrain Monitoring Advisory                • Baseline Logged
+   • Automated SMS + Email Dispatch                    • CSV Database Log                           • System Standby
+   • Persistent CSV Entry Logging
+   • HeatMap Surface Regeneration
 ```
 
-### Features
+### Remote Village Emergency Scenario
+1. **Disruption:** Rainfall triggers landslides blocking rural roads and severing landline connectivity.
+2. **Aerial Survey:** A field drone collects high-resolution footage over suspected valleys.
+3. **Automated Triage:** GeoSentinel detects slope failures, isolates GPS coordinates, and defines a 1 km danger perimeter.
+4. **Actionable Alert:** Disaster management authorities receive SMS coordinates and HTML emails with visual mask attachments for targeted evacuation.
 
-| Feature | Description |
-|---------|-------------|
-| 📷 Image Analysis | Upload JPG/PNG for instant segmentation + confidence scoring |
-| 🎞️ Drone Video Analysis | Frame-by-frame MP4/AVI/GIF analysis with annotated video output |
-| 🗺️ Live Map | Folium map with GPS pin, 1 km evacuation radius ring |
-| 📱 SMS Alert | Twilio-powered SMS to field officers on detection |
-| 📧 Email Alert | SendGrid HTML email with annotated image attachment |
-| 🔥 Heatmap | Historical landslide detection heatmap from CSV log |
-| 🔊 Audio Alert | pyttsx3 voice alert played in-browser on danger detection |
-| 💾 Database | CSV-based logging of lat/lon, confidence, timestamp, location |
+---
 
-# UI Screenshots
-<p align="center">
-  <h2>NO LandSlide Input/OutPut</h2>
-  <img src="assets/ui/safe_img.png" width="400">
-</p>
-
-<h1>Landslide Detected IMG</h1>
-<p align="center">
-  <h3>Input Detection</h3>
-  <img src="assets/ui/ui_img2.png" width="400">
-    <h3>Map and SMS</h3>
-  <img src="assets/ui/ui_img3.png" width="500">
-</p>
-
-<p align="center">
-  <h3>HeatMap</h3>
-  <img src="assets/ui/ui_img1.png" width="500">
-</p>
-<h3>Landslide Detected VID</h3>
-
-<p align="center">
-  <h3>Input Vid</h3>
-  <img src="assets/ui/ui_vid1.png" width="600">
-  <h3>Output</h3>
-  <img src="assets/ui/ui_vid2.png" width="400">
-</p>
-
-### Running the App
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/geosentinel.git
-cd geosentinel
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Run the app
-streamlit run app.py
-```
-
-### Requirements
-
-```txt
-streamlit
-ultralytics
-opencv-python
-pillow
-folium
-streamlit-folium
-twilio
-sendgrid
-pyttsx3
-pandas
-numpy
-```
-
-### 📁 Repository Structure
+## 📁 Repository Structure
 
 ```text
 GeoSentinel-Landslide-Detection-System/
 ├── .devcontainer/
-│   └── devcontainer.json        # VS Code Codespaces / Container environment
+│   └── devcontainer.json        # Codespaces container development environment
 ├── assets/
-│   ├── examples/                # Real sample landslide test images
-│   │   ├── landslide1.png
-│   │   └── landside.png
-│   └── ui/                      # Application user interface screenshots
-│       ├── safe_img.png
-│       ├── ui_img1.png
-│       ├── ui_img2.png
-│       ├── ui_img3.png
-│       ├── ui_vid1.png
-│       └── ui_vid2.png
+│   ├── examples/                # Authentic landslide test images (landslide1.png, landside.png)
+│   └── ui/                      # Streamlit UI screenshots (safe_img, ui_img1–3, ui_vid1–2)
 ├── data/
 │   ├── data.yaml                # YOLO dataset configuration
-│   └── landslide_data.csv       # Persistent detection logs (GPS, confidence, timestamps)
+│   └── landslide_data.csv       # Persistent detection logs (268 historical coordinate records)
 ├── docs/
-│   ├── README.dataset.txt       # Roboflow dataset license and source information
+│   ├── README.dataset.txt       # Roboflow dataset license and workspace attribution
 │   └── README.roboflow.txt      # Data preprocessing and augmentation parameters
 ├── notebooks/
-│   └── model.ipynb              # YOLOv8 segmentation model training notebook
-├── results/
-│   ├── confusion_matrix.png     # Validation confusion matrix
-│   ├── mask_f1_curve.png        # Mask F1-confidence curve
-│   ├── mode_prediction.png      # Segmentation prediction collage
-│   ├── NO_LANDSLIDE.png         # Model prediction test matrix
-│   ├── pr_curve.png             # Precision-Recall curve
-│   └── results.png              # Epoch-by-epoch training and validation loss
+│   └── model.ipynb              # YOLOv8 segmentation training and evaluation notebook
+├── results/                     # Training curves, confusion matrix, PR/F1 plots, test collages
 ├── src/
-│   ├── __init__.py              # Python source package
-│   ├── database.py              # CSV database logging module with dynamic pathing
-│   └── features.py              # Twilio SMS, SendGrid Email, and Video analysis modules
+│   ├── __init__.py              # Python package marker
+│   ├── database.py              # Resilient CSV logging engine with dynamic path resolution
+│   └── features.py              # Twilio SMS, SendGrid Email, Video scanner, and Folium Map UI
 ├── .gitignore                   # Version control rules
-├── app.py                       # Main Streamlit web application
+├── app.py                       # Primary Streamlit web application
 ├── app1.py                      # Backward-compatibility application launcher
-├── best.pt                      # Trained YOLOv8 segmentation weights
-├── data.yaml                    # Dataset configuration file
-├── packages.txt                 # Debian/Ubuntu system packages (libgl1)
+├── best.pt                      # Trained YOLOv8 segmentation weights (23.9 MB)
+├── data.yaml                    # Root dataset configuration file
+├── packages.txt                 # Debian/Ubuntu system libraries (libgl1)
 ├── requirements.txt             # Python runtime dependencies
 └── README.md                    # Project documentation
 ```
 
 ---
-### ⚠️ Failure Condition: Dataset Bias
 
-The model was initially trained primarily on landslide images, which caused a bias toward predicting landslides even in non-landslide regions. This resulted in increased false positives and very low true negative values.
+## 🚀 Installation & Quickstart
 
-### ✅ Solution
+### 1. Clone & Set Up Environment
+```bash
+git clone https://github.com/Sujan-lab-cell/GeoSentinel-Landslide-Detection-System.git
+cd GeoSentinel-Landslide-Detection-System
+python -m venv venv
+# On Windows: venv\Scripts\activate | On Linux/macOS: source venv/bin/activate
+pip install -r requirements.txt
+```
 
-To overcome this, additional background (non-landslide) images were included in the dataset. This helped the model learn the distinction between landslide and normal terrain, improving overall prediction reliability.
+### 2. Launch Streamlit Application
+```bash
+streamlit run app.py
+```
+*(Running `streamlit run app1.py` also works via the built-in backward-compatibility wrapper).*
 
-## 🌐 Real-World Use Case
-
-GeoSentinel is built to solve a critical real-world problem: **detecting landslides early and enabling faster emergency response in remote and high-risk areas.**
-
----
-
-### 🚨 Scenario: Landslide in a Remote Village
-
-- A landslide occurs in a **hilly or rural village** due to heavy rainfall or soil instability.  
-- The **roads get blocked**, making it impossible for rescue teams to immediately reach the location.  
-- Communication infrastructure (mobile networks, internet) may be **partially or completely disrupted**.  
-- People in nearby areas remain **unaware of the danger**, increasing the risk of casualties.  
-
----
-
-### 🛰️ Step-by-Step System Operation
-
-#### 1. Drone-Based Monitoring
-- A surveillance drone is deployed over the affected or high-risk region.  
-- The drone captures **real-time aerial images or video footage** of the terrain.  
-
-#### 2. AI-Powered Detection
-- The captured data is processed using the **YOLOv8-Seg model**.  
-- The model identifies and segments **landslide regions with high precision**.  
-- Each detection is assigned a **confidence score** to measure reliability.  
-
-#### 3. Risk Classification
-- Based on the confidence score, the system categorizes the situation into:
-  - **HIGH Risk** → Immediate danger  
-  - **LOW Risk** → Possible instability  
-  - **NO Risk** → Safe area  
+### 3. Optional Alert Configuration
+To activate live SMS and Email alerts, add your credentials in `src/features.py` (or set environment variables):
+* **Twilio:** `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`, `TWILIO_TO_NUMBER`
+* **SendGrid:** `SENDGRID_API_KEY`, `ALERT_FROM_EMAIL`, `ALERT_TO_EMAIL`
 
 ---
 
-#### 4. Automated Alert System
-- When a landslide is detected:
-  - 📱 **SMS alerts** are instantly sent to nearby residents and authorities  
-  - 📧 **Email notifications** are sent with annotated images for verification  
-  - 🔊 **Audio alerts** can be broadcast using speakers to warn people in the area  
+## ⚠️ Dataset Bias, Limitations & Roadmap
 
-- Alerts are targeted within an approximate **1 km radius** of the detected location.  
+### Dataset Bias & Mitigation
+* **Challenge:** The initial dataset was heavily weighted with active landslide images, causing the model to over-predict landslides in barren rocky or brown soil regions.
+* **Mitigation:** Explicit negative background samples (non-landslide forested hills, bare soil, and standard rural roads) were integrated, reducing false alarms and improving true negative balance.
 
----
+### Current Limitations
+* SMS and email dispatching require third-party paid API credentials, disabled by default in cloud demos.
+* Heavy cloud cover or extreme sensor blur in raw satellite feeds can lower segmentation mask recall.
 
-#### 5. Live Map Visualization
-- The detected landslide location is:
-  - 📍 Marked on an **interactive map (Folium + OpenStreetMap)**  
-  - Surrounded by a **1 km evacuation zone** for safety planning  
-
----
-
-#### 6. Data Logging & Monitoring
-- Each detection event is stored in a **CSV database**, including:
-  - Latitude and Longitude  
-  - Confidence Score  
-  - Timestamp  
-  - Risk Level  
-
-- This data is used to:
-  - 📊 Generate **heatmaps of landslide-prone areas**  
-  - 📈 Analyze patterns for future risk prediction  
+### Future Improvements
+* **Multi-Hazard Detection:** Expanding classes to flood inundation, mudslides, and collapsed roadways.
+* **Live Satellite Ingestion:** Automated scraping from Copernicus Sentinel-2 and NASA MODIS open APIs.
+* **Mobile Field App:** Lightweight offline-first mobile app for rescue workers with push notifications (FCM).
 
 ---
 
-### 🎯 Real-World Impact
+## 📚 References & Contributors
 
-- 🚀 Enables **early detection** in areas where human monitoring is difficult  
-- ⏱️ Reduces **response time** during disasters  
-- 🧭 Helps authorities **plan rescue operations more effectively**  
-- 🔔 Provides **instant alerts** to prevent loss of life  
-- 📍 Supports **long-term surveillance and disaster preparedness**  
+1. **Ultralytics YOLOv8:** [GitHub Repository](https://github.com/ultralytics/ultralytics)
+2. **Streamlit Framework:** [Streamlit Docs](https://streamlit.io)
+3. **Folium GIS Mapping:** [Folium Documentation](https://python-visualization.github.io/folium)
+4. **Twilio REST API:** [Twilio Docs](https://www.twilio.com/docs/sms)
+5. **SendGrid Email API:** [SendGrid Docs](https://docs.sendgrid.com)
+6. **Roboflow Computer Vision:** [Roboflow Platform](https://roboflow.com)
+7. **NASA Global Landslide Catalog:** [NASA GPM](https://gpm.nasa.gov/landslides)
+8. **Kaggle Landslide4Sense:** [Kaggle Dataset](https://www.kaggle.com/datasets/saurabhshahane/landslide4sense)
+9. **OpenCV Computer Vision:** [OpenCV Library](https://opencv.org)
+10. **pyttsx3 Text-to-Speech:** [PyPI Package](https://pypi.org/project/pyttsx3)
+11. **Bhushan, B., & Solomatine, D. P. (2021):** *Machine learning in landslide studies: Novel insights and future challenges.* Earth-Science Reviews.
+12. **Ghorbanzadeh, O., et al. (2019):** *Evaluation of different machine learning methods and deep learning CNNs for landslide detection.* Remote Sensing.
 
----
-
-### 💡 Key Insight
-
-GeoSentinel is not just a detection model—it is a **complete disaster response system** that connects:
-> **AI Detection → Real-Time Alerts → Geographic Mapping → Long-Term Monitoring**
-
-This makes it highly useful for:
-- Disaster Management Agencies  
-- Government Authorities  
-- Environmental Monitoring Organizations  
-- Emergency Response Teams  
-
-
----
-## ✅ Conclusion
-
-GeoSentinel demonstrates that modern instance segmentation models like YOLOv8-Seg can be effectively applied to geospatial disaster detection with a relatively small annotated dataset. The system bridges the gap between AI inference and real-world emergency response by integrating automated alerts, geographic visualization, and persistent data logging into a single deployable web application.
-
-**Key takeaways:**
-- YOLOv8-Seg is well-suited for single-class terrain segmentation on satellite/drone imagery.
-- Data augmentation (3× multiplier) significantly extended the usable training set from 327 to 821 images.
-- The Streamlit + Folium + Twilio/SendGrid stack provides a practical, deployable pipeline for field use.
-- The heatmap feature enables longer-term risk tracking across geographic regions.
-
-**Future improvements:**
-- Multi-class detection (flood zones, debris flows, road damage).
-- Integration with live satellite feeds (Sentinel-2, MODIS).
-- Mobile app companion for field officers.
-- Push notification integration (FCM/APNs).
-
----
-
-## 📚 References
-
-1. **Ultralytics YOLOv8** — [https://github.com/ultralytics/ultralytics](https://github.com/ultralytics/ultralytics)
-2. **Streamlit** — [https://streamlit.io](https://streamlit.io)
-3. **Folium (Map Visualization)** — [https://python-visualization.github.io/folium](https://python-visualization.github.io/folium)
-4. **Twilio SMS API** — [https://www.twilio.com/docs/sms](https://www.twilio.com/docs/sms)
-5. **SendGrid Email API** — [https://docs.sendgrid.com](https://docs.sendgrid.com)
-6. **Roboflow** (Dataset Management & Augmentation) — [https://roboflow.com](https://roboflow.com)
-7. **NASA Landslide Inventory** — [https://gpm.nasa.gov/landslides](https://gpm.nasa.gov/landslides)
-8. **Kaggle Landslide4Sense** — [https://www.kaggle.com/datasets/saurabhshahane/landslide4sense](https://www.kaggle.com/datasets/saurabhshahane/landslide4sense)
-9. **OpenCV** — [https://opencv.org](https://opencv.org)
-10. **pyttsx3 (Text-to-Speech)** — [https://pypi.org/project/pyttsx3](https://pypi.org/project/pyttsx3)
-11. Bhushan, B., & Solomatine, D. P. (2021). *Machine learning in landslide studies: Novel insights and future challenges.* Earth-Science Reviews.
-12. Ghorbanzadeh, O., et al. (2019). *Evaluation of different machine learning methods and deep learning CNNs for landslide detection.* Remote Sensing, 11(2), 196.
-
----
-
-# 👨‍💻 Author And Contributers
-
--**Sujan KS**--
--**Prajwal Ravi Devadiga**--
--**Vinayak j prabhu**
+### 👨‍💻 Project Authors & Credits
+* **Sujan KS**
+* **Prajwal Ravi Devadiga**
+* **Vinayak J Prabhu**
 
 <p align="center">
-  Built for rapid disaster response · For emergency use only<br>
-  <b>GeoSentinel AI</b> — Detect landslides before disaster strikes 🛰️
+  <b>GeoSentinel AI</b> — Detect landslides before disaster strikes 🛰️<br>
+  <i>Built for rapid disaster response · Academic & Emergency Research</i>
 </p>
